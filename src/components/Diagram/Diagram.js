@@ -1,13 +1,16 @@
-import React from 'react';
-import { Button, Paper } from '@material-ui/core';
+import React, { useRef } from 'react';
+import { Paper } from '@material-ui/core';
 import useStyles from './styles'
 import { Bar } from 'react-chartjs-2';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { create } from '../../redux/columnsSlice';
 
 const Diagram = () => {
   const columns = useSelector((state) => state.columnsEditor.columns)
   const classes = useStyles();
+  const dispatch = useDispatch()
+  const inputFileRef = useRef(null);
   const state = {
     labels: columns.map((item) => item.name),
     datasets: [
@@ -19,23 +22,43 @@ const Diagram = () => {
     ]
   }
   
-  const onExport = async () => {
-    const fileHandle = await window.showSaveFilePicker({
-      types: [{
-        accept: {'application/json': ['.json']},
-      }],
-      suggestedName: 'diagram-values.json',
-    });
-    const fileStream = await fileHandle.createWritable();
-    await fileStream.write(JSON.stringify(columns));
-    await fileStream.close();
+  const cleanUp = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
   }
-  
+ 
+  const onReaderLoad = (event) => {
+    dispatch(create(JSON.parse(event.target.result)))
+  }
+
+  const dropHandler = (e) => {
+    cleanUp(e);
+    
+    const reader = new FileReader();
+    reader.onload = onReaderLoad;
+    const droppedFile = e.dataTransfer.items[0];
+    if(droppedFile.type === "application/json") {
+      reader.readAsText(droppedFile.getAsFile());
+    } else {
+      alert('Wrong file format');
+    }
+  }
+
+  const onImport = () => {
+    inputFileRef.current.click()
+  }
+
+  const onInputClick = (event) => {
+    const reader = new FileReader();
+    reader.onload = onReaderLoad;
+    reader.readAsText(event.target.files[0]);
+  }
+
   return <>
-    <Button variant="contained" size="large" onClick={onExport}>
-      Export to json
-    </Button>
-    <Paper className={classes.paper}>
+    <Paper className={classes.paper} onClick={onImport} onDrop={dropHandler} onDragOver={cleanUp}>
+      <div>
+        Drop or click here to import the JSON file
+      </div>
       <Bar
         data = {state}
         options = {{
@@ -46,6 +69,7 @@ const Diagram = () => {
         }}
       />
     </Paper>
+    <input id="file-input" type="file" name="name" accept='.json' ref={inputFileRef} style={{display: 'none'}} onChange={onInputClick}/>
   </>
 }
 

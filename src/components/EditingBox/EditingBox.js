@@ -1,6 +1,6 @@
-import React, { createRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { addColumn, create } from '../../redux/columnsSlice';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addColumn } from '../../redux/columnsSlice';
 import { Button } from '@material-ui/core';
 import AddedColumns from './AddedColumns/AddedColumns';
 import useStyles from './styles';
@@ -9,24 +9,22 @@ import add from '../../icons/add.svg'
 const EditingBox = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
-    const inputFileRef = createRef();
+    const columns = useSelector((state) => state.columnsEditor.columns)
 
     const onAddColumn = () => {
         dispatch(addColumn())
     };
 
-    const onImport = () => {
-        inputFileRef.current.click()
-    }
-    
-    const onReaderLoad = (event) => {
-        dispatch(create(JSON.parse(event.target.result)))
-    }
-
-    const onInputClick = (event) => {
-        const reader = new FileReader();
-        reader.onload = onReaderLoad;
-        reader.readAsText(event.target.files[0]);
+    const onExport = async () => {
+        const fileHandle = await window.showSaveFilePicker({
+          types: [{
+            accept: {'application/json': ['.json']},
+          }],
+          suggestedName: 'diagram-values.json',
+        });
+        const fileStream = await fileHandle.createWritable();
+        await fileStream.write(JSON.stringify(columns));
+        await fileStream.close();
     }
 
     return (<>
@@ -34,10 +32,9 @@ const EditingBox = () => {
             <img src={add}/>
             add a column
         </Button>
-        <Button variant="contained" size="large" color="secondary" onClick={onImport}>
-          Import from json
+        <Button variant="contained" size="large" color="secondary"  onClick={onExport}>
+          Export to json
         </Button>
-        <input id="file-input" type="file" name="name" accept='.json' ref={inputFileRef} className={classes.inputFile} onChange={onInputClick}/>
         <AddedColumns/>
     </>);
 }

@@ -8,7 +8,4 @@ export default makeStyles((theme) => ({
         justifyContent: 'space-around',
         marginRight: theme.spacing(1)
     },
-    inputFile: {
-        display: 'none',
-    }
 }));
