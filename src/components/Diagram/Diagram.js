@@ -5,6 +5,7 @@ import { Bar } from 'react-chartjs-2';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { create } from '../../redux/columnsSlice';
+import { Canvas } from './Canvas';
 
 const Diagram = () => {
   const columns = useSelector((state) => state.columnsEditor.columns)
@@ -68,6 +69,7 @@ const Diagram = () => {
           }
         }}
       />
+      <Canvas columns={columns}/>
     </Paper>
     <input id="file-input" type="file" name="name" accept='.json' ref={inputFileRef} style={{display: 'none'}} onChange={onInputClick}/>
   </>
