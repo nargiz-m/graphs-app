@@ -11,7 +11,7 @@ export const columnsSlice = createSlice({
             state.columns = action.payload;
         },
         addColumn : (state, action) => {
-            state.columns.push({id: uuidv4(), name: '', height: 0, color: 'none'});
+            state.columns.push({id: uuidv4(), name: '', height: 0, color: ''});
         },
         updateColumn : (state, action) => {
             const updatedElementIndex = state.columns.findIndex(col => col.id === action.payload.id);

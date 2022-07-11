@@ -5,7 +5,7 @@ import { Bar } from 'react-chartjs-2';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { create } from '../../redux/columnsSlice';
-import { Canvas } from './Canvas';
+import { Canvas } from './Canvas/Canvas';
 
 const Diagram = () => {
   const columns = useSelector((state) => state.columnsEditor.columns)
